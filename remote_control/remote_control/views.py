@@ -10,7 +10,7 @@
 **********************************************************************
 '''
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from .driver import camera, stream
 from picar import back_wheels, front_wheels
 from django.http import HttpResponse
@@ -24,14 +24,14 @@ cam = camera.Camera(debug=False, db=db_file)
 cam.ready()
 bw.ready()
 fw.ready()
- 
+
 SPEED = 60
 bw_status = 0
 
 print(stream.start())
 
 def home(request):
-	return render_to_response("base.html")
+	return render(request, "base.html")
 
 def run(request):
 	global SPEED, bw_status
@@ -67,7 +67,7 @@ def run(request):
 		elif 'fwturn' in action:
 			print("turn %s" % action)
 			fw.turn(int(action.split(':')[1]))
-		
+
 		# ================ Camera =================
 		elif action == 'camready':
 			cam.ready()
@@ -78,7 +78,7 @@ def run(request):
 		elif action == 'camup':
 			cam.turn_up(20)
 		elif action == 'camdown':
-			cam.turn_down(20)	
+			cam.turn_down(20)
 	if 'speed' in request.GET:
 		speed = int(request.GET['speed'])
 		if speed < 0:
@@ -90,7 +90,7 @@ def run(request):
 			bw.speed = SPEED
 		debug = "speed =", speed
 	host = stream.get_host().decode('utf-8').split(' ')[0]
-	return render_to_response("run.html", {'host': host})
+	return render(request, "run.html", {'host': host})
 
 def cali(request):
 	if 'action' in request.GET:
@@ -144,7 +144,7 @@ def cali(request):
 			bw.cali_ok()
 		else:
 			print('command error, error command "%s" received' % action)
-	return render_to_response("cali.html")
+	return render(request, "cali.html")
 
 def connection_test(request):
 	return HttpResponse('OK')
