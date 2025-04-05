@@ -10,9 +10,9 @@ import numpy as np
 # Constants
 SCREEN_WIDTH = 160 # The width of the camera image in pixels
 SCREEN_HIGHT = 120 # The height of the camera image in pixels
-MOTOR_SPEED = 100 # The speed of the motor (0-100)
+MOTOR_SPEED = 50 # The speed of the motor (0-100)
 ANGLE_FACTOR = 0.45 # The factor to convert the position of the line to a steering angle
-LINE_RECOGNITION_THRESHOLD = 160 # The threshold for the line recognition algorithm (0-255)
+LINE_RECOGNITION_THRESHOLD = 100 # The threshold for the line recognition algorithm (0-255)
 DARK_LINE = True # Set this to False when using a bright line on a dark background
 
 # Setup the picar library
@@ -43,9 +43,6 @@ def main():
     for _ in range(20):
         img.read()
 
-    # Start the motor
-    bw.forward()
-
     # Loop running forever
     while True:
         # Read the image from the camera. bgr_image is then a numpy array of shape (120, 160, 3)
@@ -57,14 +54,12 @@ def main():
         # Sum over the bottom 10 rows to get a 1D array of shape (160,)
         brightness_distribution = np.mean(gray_image[-10:,:], axis=0)
 
-        print(np.max(brightness_distribution))
-
         # Find the columns of the image where the line is located, i.e., where the brightness
         # exceeds the line recognition threshold.
         if DARK_LINE:
-            line_indices = np.where(brightness_distribution > LINE_RECOGNITION_THRESHOLD)[0]
-        else:
             line_indices = np.where(brightness_distribution < LINE_RECOGNITION_THRESHOLD)[0]
+        else:
+            line_indices = np.where(brightness_distribution > LINE_RECOGNITION_THRESHOLD)[0]
 
         # Calculate the column of the line as the average index of columns where the brightness
         # exceeds the line recognition threshold. When the threshold is not exceeded, the
@@ -77,7 +72,7 @@ def main():
         turn_angle = (line_center_index - SCREEN_WIDTH/2) * ANGLE_FACTOR
 
         # Update the steering angle of the car
-        fw.turn(turn_angle)
+        fw.turn(turn_angle + 90) # For some reason, 90 means straight
 
 # Stop the motor when the program is interrupted with ctrl+c
 # When the program stops for any other reason, the motor will continue to run.
