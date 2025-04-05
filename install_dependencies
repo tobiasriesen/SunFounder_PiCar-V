@@ -46,6 +46,12 @@ function end(){
 
 function print_result(){
     echo -e "Installation result:"
+    echo -e "pip   \c"
+    if $is_installed_pip; then
+        echo -e "Success"
+    else
+        echo -e "Failed"
+    fi
     echo -e "django   \c"
     if $is_installed_django; then
         echo -e "Success"
@@ -75,12 +81,27 @@ function print_result(){
 ###################################
 # install python-pip django i2c-tools python-smbus python-opencv runtime #
 ###################################
+echo -e "\nInstalling pip \n"
+if sudo apt install python3-pip -y; then
+    echo -e "    Successfully installed pip \n"
+    is_installed_pip=true
+else
+    echo -e "    Failed to install pip."
+    echo -e "    Do you want to skip this? \c"
+    if_continue
+    if [$? = 1 ] ; then
+        echo -e "    Skipped pip installation."
+    else
+        end
+    fi
+fi
+
 echo -e "\nInstalling django \n"
-if sudo apt install python3-django ; then
+if sudo apt install python3-django -y ; then
     echo -e "    Successfully installed django runtime \n"
     is_installed_django=true
 else
-    echo -e "    Failed to installed django."
+    echo -e "    Failed to install django."
     echo -e "    Do you want to skip this? \c"
     if_continue
     if [ $? = 1 ] ; then
